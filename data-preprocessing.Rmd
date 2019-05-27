@@ -8,11 +8,11 @@ output: html_document
 
 In this tutorial, you will learn about data preprocessing. Data Preprocessing is a technique that is used to convert the raw data into a clean data set. In other words, whenever the data is gathered from different sources it is collected in raw format which is not feasible for the analysis.
 
-You'll learn to handle missing data, categorical data, divide the data into train and test and feature scaling.
+You'll learn to handle missing data, categorical data, divide the data into train and test, feature scaling and a template.
 
 ## Importing the dataset
 
-The first step is to import the dataset, then read it using the read function.
+The first step is to import the dataset, then read it using the *read* function.
 
 ```{r}
 dataset = read.csv('Data.csv')
@@ -30,7 +30,7 @@ Now let's perform a summary in the data to see more information.
 summary(dataset)
 ```
 
-We can clearly see from the summary that we have salary and age missing. One missing data in Germany that is salary and another in Spain that is age.
+We can see from the summary that salary and age are missing(NA's : 1). One missing data in Germany that is salary and another in Spain that is age.
 
 So, how can we handle this problem?
 
@@ -38,7 +38,7 @@ So, how can we handle this problem?
 - We can use the mean of the entire data to replace the missing data.
 - Predict the missing Values.
 
-In this case let's take the second approach, in case you want more information about the pros and cons of different approaches from handling missing data refer to https://www.analyticsindiamag.com/5-ways-handle-missing-values-machine-learning-datasets/.
+In this case, let's take the second approach If you want more information about the pros and cons of different approaches from handling missing data refer to https://www.analyticsindiamag.com/5-ways-handle-missing-values-machine-learning-datasets/.
 
 The following is the way to do it.
 
@@ -50,9 +50,9 @@ dataset$Salary = ifelse(is.na(dataset$Salary),
                         ave(dataset$Salary, FUN = function(x) mean(x, na.rm = TRUE)),
                         dataset$Salary)
 ```
-- The *ifelse* will receive 3 params, as you can see the first one is the condition, the second if the condition is true and then the third one if the condition is false. So the condition means If have missing data for this column then do the mean of the entire age column and then replace the missing data for the calculated mean
+- The *ifelse* will receive 3 params, the first one is the condition, the second if the condition is true and then the third one if the condition is false. So the condition means If have missing data for this column then do the mean of the entire age column and then replace the missing data for the calculated mean.
 
-- The second for salary is the same approach, we have the condition if we have missing data for the salary column the compute the mean for the salary.
+- The second for salary is the same approach, first one the condition if we have missing data for the salary column the compute the mean for the salary.
 
 Now Let's see the data.
 
@@ -60,20 +60,20 @@ Now Let's see the data.
 dataset
 ```
 
-You can see that the missing data has been replaced by the average of each category.
+You can see that the missing data has been replaced by the mean of each category.
 
 
 ## Categorical Data
 
 The following is the definition of categorical variables. A categorical variable (sometimes called a nominal variable) is one that has two or more categories, but there is no intrinsic ordering to the categories.  For example, gender is a categorical variable having two categories (male and female) and there is no intrinsic ordering to the categories.  
 
-Categorical variables are important to be encoded since machine learning models are based on mathematical equations and text won't make sense so some transformation of the categorical variables has to be done.
+Categorical variables are important to be encoded since machine learning models are based on mathematical equations and strings won't make sense, so some transformation of the categorical variables is needed.
 
 ```{r}
 dataset
 ```
 
-So in our dataset, we can clearly see that we two categorical variables, country and purchased. Now let's transform them into something machine learning models can understand.
+So in our dataset, We can see that the two categorical variables are country and purchased. Now let's transform them into something machine learning models can understand.
 
 
 ```{r}
@@ -82,7 +82,7 @@ dataset$Country = factor(dataset$Country,
                          labels = c(1, 2, 3))
 ```
 
-Now let's do the same for purchase
+Use use the *factor* function it received tree params, Columns, levels, labels; The levels are the existing data, for example, France and the labels are the new values that will be replaced by each one of the categorical variables, So in our example France is replaced by 1, Spain by 2 and Germany by 3. Now let's do the same for purchase.
 
 ```{r}
 dataset$Purchased = factor(dataset$Purchased, 
@@ -90,18 +90,17 @@ dataset$Purchased = factor(dataset$Purchased,
                          labels = c(0, 1))
 ```
 
-See the dataset and see how the new values are there for each variable
+The categorical variable no is replaced by 0 and yes is replaced by 1.
 
 ```{r}
 dataset
 ```
 
+Now our categorical variables are transformed to something that machine learning models can understand.
 
 ## Split data set
 
-We need to split the dataset in training set and test set, but why we need to do this?.  We need to do this because machine learning models will learn from our data and make predictions but we need always need a new set to make sure it will work and test the performance and how they adapt to a new set and new situations.
-
-
+We need to split the dataset in the training set and test set. Why we need to do this?.  We do this because machine learning models learn from our data and make predictions, so here is where the test data set is needed to validate the performance of the model and how it adapts to a new set of data.
 
 ```{r}
 library(caTools)
@@ -111,8 +110,7 @@ training_set = subset(dataset, split == TRUE)
 test_set = subset(dataset, split == FALSE)
 ```
 
-
-We start by importing a library that will help us to split our data. Then we use a seed this is to make sure the same random result of splitting data can be reproduced each time.
+We start by importing a library that will help us to split our data. Then we use a *seed*, this is to make sure the same random result can be reproduced each time.
 
 - A training set that you can use to train your model and find optimal parameters
 - A test set that you can use to test your trained model and see how well it functions.
@@ -135,12 +133,14 @@ To suppress this effect, we need to bring all features to the same level of magn
 
 https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e
 
-As in the example, we are working on, We need to scale salary and age. How we do this in R? well is actually pretty simple
+As in the example, We need to scale salary and age. How we do this in R? well is actually pretty simple
 
 ```{r}
 training_set[,2:3] = scale(training_set[,2:3])
 test_set[,2:3] = scale(test_set[,2:3])
 ```
+
+In the above we use the *scale* function that will do it for us, just making sure We pass the two columns for scaling (salary and age).
 
 Now let's see our data
 
@@ -149,6 +149,44 @@ training_set
 test_set
 ```
 
-You can see how our data is scaled(age and salary) now our data is ready for a machine learning model. Something important is that feature scaling is done by some algorithms, but be aware that some don't do it and you'll need to do it.
+You can see how our data is scaled(age and salary). Something important some machine learning algorithms do it, so in those cases, the transformation is not necessary.
 
-Now is your turn to do some data preprocessing. 
+## Template
+
+You can use the following code as a template to perform data preprocessing by yourself.
+
+- You need to import the dataset.
+- Replace missing data and categorical data.
+- Identify the DependentVariable variable (predicting variable) to split your data.
+- Do feature scaling if needed.
+
+```{r}
+# Template
+
+# Importing the dataset
+#dataset = read.csv('Data.csv')
+
+#Missing data
+#dataset$Age = ifelse(is.na(dataset$Age),
+#                     ave(dataset$Age, FUN = function(x) mean(x, na.rm = TRUE)),
+#                     dataset$Age)
+
+#Categorical Data
+#dataset$Country = factor(dataset$Country, 
+#                         levels = c('France','Spain','Germany'), 
+#                         labels = c(1, 2, 3))
+
+
+# Splitting the dataset into the Training set and Test set
+# install.packages('caTools')
+#library(caTools)
+#set.seed(123)
+#split = sample.split(dataset$DependentVariable, SplitRatio = 0.8)
+#training_set = subset(dataset, split == TRUE)
+#test_set = subset(dataset, split == FALSE)
+
+# Feature Scaling
+# training_set = scale(training_set)
+# test_set = scale(test_set)
+```
+
